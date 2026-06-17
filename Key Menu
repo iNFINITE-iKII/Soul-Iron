@@ -2,18 +2,19 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 
--- Lindungi dari eksekusi ganda agar tidak tumpang tindih
+-- ==========================================
+-- LINDUNGI DARI EKSEKUSI GANDA
+-- ==========================================
 if CoreGui:FindFirstChild("KiiBooKeySystemModern") then
     CoreGui.KiiBooKeySystemModern:Destroy()
 end
 
 -- ==========================================
--- KONFIGURASI URL SERVER API & AUTO SAVE
+-- KONFIGURASI SERVER API & AUTO SAVE
 -- ==========================================
 local ServerURL = "https://workspaceapi-server-production-d63d.up.railway.app/api/check?key="
 local SaveFileName = "XiFilHub_Key.json"
 
--- Fungsi untuk menyimpan Key
 local function SaveKey(key)
     if writefile then
         local data = {SavedKey = key}
@@ -26,7 +27,6 @@ local function SaveKey(key)
     end
 end
 
--- Fungsi untuk memuat Key yang tersimpan
 local function LoadKey()
     if readfile then
         local success, fileData = pcall(readfile, SaveFileName)
@@ -240,11 +240,13 @@ CheckBtn.MouseLeave:Connect(function()
     AnimateColor(CheckBtn, "BackgroundColor3", Theme.Accent, 0.2)
 end)
 
--- Logika Verifikasi Utama
+-- ==========================================
+-- FUNGSI VERIFIKASI UTAMA
+-- ==========================================
 local isChecking = false
-CheckBtn.MouseButton1Click:Connect(function()
+
+local function VerifyKey(input)
     if isChecking then return end
-    local input = KeyInput.Text
 
     if input == "" then
         AnimateColor(InputStroke, "Color", Theme.Error, 0.2)
@@ -338,6 +340,24 @@ CheckBtn.MouseButton1Click:Connect(function()
     end
     
     isChecking = false
+end
+
+-- ==========================================
+-- EVENT LISTENER / TRIGGERS
+-- ==========================================
+
+-- Trigger Klik Tombol
+CheckBtn.MouseButton1Click:Connect(function()
+    VerifyKey(KeyInput.Text)
+end)
+
+-- Trigger Auto-Verify saat UI dimuat
+task.spawn(function()
+    local savedKey = KeyInput.Text
+    if savedKey ~= "" then
+        task.wait(0.5) -- Beri jeda animasi masuk selesai
+        VerifyKey(savedKey)
+    end
 end)
 
 -- Tombol Interaksi Link
@@ -358,4 +378,3 @@ BuyPremiumBtn.MouseButton1Click:Connect(function()
     task.wait(1.5)
     BuyPremiumBtn.Text = "Buy Premium 💎"
 end)
-
